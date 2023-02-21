@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Routes, useNavigate } from "react-router-dom";
 import './App.css';
+import SideBar from "./view/sidebarTest/SideBar.js";
 import StudentList from './view/student/StudentList';
+import TestCheck from "./view/checkAll/TestCheck";
 
 const App = () => {
   const [students, setStudents] = useState([]);
@@ -17,6 +19,8 @@ const App = () => {
     gender: '',
     languages: []
   })
+
+  const [formError, setFormError] = useState({})
 
   const { id, username, email, password, cpassword, occupation, gender, languages } = student;
 
@@ -56,20 +60,88 @@ const App = () => {
     }
   }
 
-  const onSubmitHandler = () => {
+  const validateForm = () => {
+    let err = {}
+
+    if (username === '') {
+      err.username = 'Username required!'
+    }
+    if (email === '') {
+      err.email = 'Email required!'
+    } else {
+      let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+      if (!regex.test(email)) {
+        err.email = 'Email not validate'
+      }
+    }
+
+    if (password === '' && cpassword === '') {
+      err.password = 'Password and Confirm Password required!'
+    } else {
+      if (password !== cpassword) {
+        err.password = 'Password not matched'
+      } else {
+        if (password.length < 6) {
+          err.password = 'Password should greater than 6 characters!'
+        }
+      }
+    }
+
+    if (occupation === '') {
+      err.occupation = 'Occupation required!'
+    }
+    if (gender === '') {
+      err.gender = 'Gender required!'
+    }
+    if (languages.length < 1) {
+      err.languages = 'Any one languages required!'
+    }
+
+    setFormError({ ...err })
+
+    return Object.keys(err).length < 1;//false
+  }
+
+  const onSubmitHandler = (e) => {
+
     //console.log(student)
-    fetch("http://localhost:3006/students", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(student)
-    })
-      .then((response) => {
-        alert("Saved successfully.");
-      })
-      .catch((err) => {
-        console.log(err.message);
-      })
     console.log(student);
+    let isValid = validateForm();
+
+    if (isValid) {
+      alert('Submittes')
+      //API call to server
+      fetch("http://localhost:3006/students", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(student)
+      })
+        .then((response) => {
+          alert("Saved successfully.");
+        })
+        .catch((err) => {
+          console.log(err.message);
+        })
+    }
+    else {
+      alert('In Valid Form')
+      e.preventDefault();
+    }
+  }
+
+  const handleDeleteItem = (id) => {
+    if (window.confirm("Do you want to remove ?")) {
+      fetch("http://localhost:3006/students/" + id, {
+        method: "DELETE",
+      })
+        .then((response) => {
+          alert("Removed successfully. ");
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        })
+    }
   }
 
 
@@ -80,14 +152,17 @@ const App = () => {
         <div className='form-group'>
           <label htmlFor='username' className='form-label'>User Name</label>
           <input type="text" className='form-control' name='username' onChange={(e) => onChangeHandler(e)} value={username}></input>
+          <span className="non-valid">{formError.username}</span>
         </div>
         <div className='form-group'>
           <label htmlFor='email' className='form-label'>Email</label>
           <input type='email' className='form-control' name='email' onChange={(e) => onChangeHandler(e)} value={email}></input>
+          <span className="non-valid">{formError.email}</span>
         </div>
         <div className='form-group'>
           <label htmlFor='password' className='form-label'>Password</label>
           <input type='password' className='form-control' name='password' onChange={(e) => onChangeHandler(e)} value={password}></input>
+          <span className="non-valid">{formError.password}</span>
         </div>
         <div className='form-group'>
           <label htmlFor='cpassword' className='form-label'>Confirm Password</label>
@@ -100,6 +175,7 @@ const App = () => {
             <option value="employee">Employee</option>
             <option value="other">Other</option>
           </select>
+          <span className="non-valid">{formError.occupation}</span>
         </div>
         <div className='form-group'>
           <label htmlFor='gender' className='form-label'>Gender</label>
@@ -117,6 +193,7 @@ const App = () => {
               <label htmlFor='male'>Other</label>
             </div>
           </div>
+          <span className="non-valid">{formError.gender}</span>
         </div>
         <div className='form-group'>
           <label htmlFor='languages' className='form-label'>Languages</label>
@@ -134,12 +211,18 @@ const App = () => {
               <label htmlFor='javascript'>Javascript</label>
             </div>
           </div>
+          <span className="non-valid">{formError.languages}</span>
         </div>
         <div className='form-group'>
           <input className='btn' type="submit" value="Submit"></input>
         </div>
       </form>
-      <StudentList students={students} />
+      <StudentList
+        students={students}
+        handleDelete={handleDeleteItem}
+      />
+      <SideBar />
+      <TestCheck />
     </div>
   );
 }

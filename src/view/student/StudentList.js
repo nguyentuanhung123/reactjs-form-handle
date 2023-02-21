@@ -1,6 +1,7 @@
 import React from "react"
 const StudentList = (props) => {
-    const { students } = props;
+    const { students, handleDelete } = props;
+
     return (
         <>
             <table id="students">
@@ -29,7 +30,7 @@ const StudentList = (props) => {
                                     <td>{student.languages}</td>
                                     <td>
                                         <button>Edit</button>
-                                        <button>Delete</button>
+                                        <button onClick={() => handleDelete(student.id)}>Delete</button>
                                     </td>
                                 </tr>
                             )
