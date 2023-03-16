@@ -20,6 +20,8 @@ const App = () => {
     languages: []
   })
 
+  const [editStudent, setEditStudent] = useState("");
+
   const [formError, setFormError] = useState({})
 
   const { id, username, email, password, cpassword, occupation, gender, languages } = student;
@@ -99,7 +101,9 @@ const App = () => {
 
     setFormError({ ...err })
 
-    return Object.keys(err).length < 1;//false
+    return Object.keys(err).length < 1;
+    //true nếu không có lỗi trong mảng
+    //false nếu có lỗi trong mảng
   }
 
   const onSubmitHandler = (e) => {
@@ -109,8 +113,7 @@ const App = () => {
     let isValid = validateForm();
 
     if (isValid) {
-      alert('Submittes')
-      //API call to server
+
       fetch("http://localhost:3006/students", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -118,6 +121,31 @@ const App = () => {
       })
         .then((response) => {
           alert("Saved successfully.");
+          navigate("/")
+        })
+        .catch((err) => {
+          console.log(err.message);
+        })
+    }
+    else {
+      alert('In Valid Form')
+      e.preventDefault();
+    }
+  }
+
+  const onUpdateHandler = (e) => {
+    let isValid = validateForm();
+    if (isValid) {
+
+      fetch("http://localhost:3006/students/" + editStudent, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(student)
+      })
+        .then((response) => {
+          alert("Saved successfully.");
+          navigate("/");
+          setEditStudent("")
         })
         .catch((err) => {
           console.log(err.message);
@@ -144,11 +172,24 @@ const App = () => {
     }
   }
 
+  const handleEditItem = (id) => {
+    //alert(id);
+    fetch("http://localhost:3006/students/" + id).then((res) => {
+      return res.json();
+    }).then((response) => {
+      setStudent(response);
+      setEditStudent(response.id)
+      //window.location.reload();
+    }).catch((err) => {
+      console.log(err.message);
+    })
+  }
+
 
   return (
     <div className="App">
       <div>App Header</div>
-      <form onSubmit={onSubmitHandler}>
+      <form>
         <div className='form-group'>
           <label htmlFor='username' className='form-label'>User Name</label>
           <input type="text" className='form-control' name='username' onChange={(e) => onChangeHandler(e)} value={username}></input>
@@ -213,13 +254,21 @@ const App = () => {
           </div>
           <span className="non-valid">{formError.languages}</span>
         </div>
-        <div className='form-group'>
-          <input className='btn' type="submit" value="Submit"></input>
-        </div>
+        {
+          !editStudent && <div className='form-group'>
+            <input className='btn' type="submit" value="Submit" onClick={(e) => onSubmitHandler(e)}></input>
+          </div>
+        }
+        {
+          editStudent && <div className='form-group'>
+            <input className='btn' type="submit" value="Update" onClick={(e) => onUpdateHandler(e)}></input>
+          </div>
+        }
       </form>
       <StudentList
         students={students}
         handleDelete={handleDeleteItem}
+        handleEdit={handleEditItem}
       />
       <SideBar />
       <TestCheck />

@@ -1,6 +1,6 @@
 import React from "react"
 const StudentList = (props) => {
-    const { students, handleDelete } = props;
+    const { students, handleDelete, handleEdit } = props;
 
     return (
         <>
@@ -29,7 +29,7 @@ const StudentList = (props) => {
                                     <td>{student.gender}</td>
                                     <td>{student.languages}</td>
                                     <td>
-                                        <button>Edit</button>
+                                        <button onClick={() => handleEdit(student.id)}>Edit</button>
                                         <button onClick={() => handleDelete(student.id)}>Delete</button>
                                     </td>
                                 </tr>
