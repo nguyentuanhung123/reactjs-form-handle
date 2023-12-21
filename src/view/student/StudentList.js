@@ -27,7 +27,7 @@ const StudentList = (props) => {
                                     <td>{student.email}</td>
                                     <td>{student.occupation}</td>
                                     <td>{student.gender}</td>
-                                    <td>{student.languages}</td>
+                                    <td>{student.languages.map((language) => <span>{language} </span>)}</td>
                                     <td>
                                         <button onClick={() => handleEdit(student.id)}>Edit</button>
                                         <button onClick={() => handleDelete(student.id)}>Delete</button>

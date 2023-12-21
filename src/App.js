@@ -270,8 +270,8 @@ const App = () => {
         handleDelete={handleDeleteItem}
         handleEdit={handleEditItem}
       />
-      <SideBar />
-      <TestCheck />
+      {/* <SideBar /> */}
+      {/* <TestCheck /> */}
     </div>
   );
 }
